@@ -37,7 +37,7 @@
 
 /*
 ///////////////////////////
-//	DESIGN THINKING SECTION:
+//	DESIGN THINKING SECTION: https://chipmunklogic.com/digital-logic-design/micro-architecture-to-check-divisibility-by-n/
 ///////////////////////////
 	
 	QUESTIONS:
@@ -56,15 +56,35 @@
 
 
 module div_by_three (
-  input   logic    clk,
-  input   logic    reset,
+  input   wire    clk,
+  input   wire    reset,
 
-  input   logic    x_i,
+  input   wire    x_i,
 
-  output  logic    div_o
+  output  wire    div_o
 
 );
 
   // Write your logic here...
+    parameter   R0 = 0,
+                R1 = 1,
+                R2 = 2;
+    
+    reg [1:0] state;
+    
+    assign div_o = (state == R0);     
+  
+    always @ (posedge clk or posedge reset) begin 
+        if (reset) begin 
+            state <= R0;
+        end else begin
+            case (state) 
+            default: state <= R0;
+            R0:      state <= (x_i) ? R1 : R0;
+            R1:      state <= (x_i) ? R0 : R2;
+            R2:      state <= (x_i) ? R2 : R1;
+            endcase
+        end 
+    end 
 
 endmodule
