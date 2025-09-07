@@ -73,11 +73,16 @@ module div_by_three (
                 R1 = 1,
                 R2 = 2;
     
-    reg  [1:0] state_reg;
     reg  [1:0] state;
-    assign div_o = (state == R0);     
+    // assign div_o = (state == R0);
     
-    /*
+    // assign div_o = (state == R0) ? (x_i == 1) ? 0 : 1 : 
+    //                (state == R1) ? (x_i == 1) ? 1 : 0 : 
+    //                (state == R2) ? (x_i == 1) ? 0 : 0 : 
+    //                0;
+    
+    assign div_o = ((state == R0 & (~x_i)) | (state == R1 & (x_i))) ? 1 : 0;
+    
     always @ (posedge clk, posedge reset) begin 
         if (reset) begin 
             state <= R0;
@@ -90,22 +95,17 @@ module div_by_three (
             endcase
         end 
     end 
-    */
-    always @ (posedge clk, posedge reset) begin 
-        if (reset) begin 
-            state_reg <= 0;
-        end else begin
-            state_reg <= state;
-        end 
-    end 
+
+    // K-map based equaitons, for some reason it does not work 
+    // Y  is state[1], Z is state[0], x is input 
+    // Dy is Din equation to Y DFF or state[1]
+    // Dz is Din equation to Z DFF or state[0] 
+    // Dy  = y.x  + z.x'
+    // state[1] <= (state[1] & (x_i))   | (state[0] & (~x_i));
+    // Dz  = y.x' + y'.z'
+    // state[0] <= (state[1] & (~x_i)) | ((~state[1]) & (~state[0]));
+    // Out = z.x  + y'.z'.x'
+    // assign div_o = (state[0] & x_i) | ((~state[1]) & (~state[0]) & (~x_i));
     
-    always @ (*) begin 
-        case (state) 
-        default: state = state_reg;
-        R0:      state = (x_i) ? R1 : R0;
-        R1:      state = (x_i) ? R0 : R2;
-        R2:      state = (x_i) ? R2 : R1;
-        endcase
-    end 
 
 endmodule
