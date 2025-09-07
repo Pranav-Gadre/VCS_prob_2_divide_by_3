@@ -32,6 +32,9 @@
 	* The machine should produce output on the same cycle when the input is seen
 	* Assume that the machine gives a HIGH output when the current number is 0
 	* The new input bit x_i is inserted on the LSB side of the current number
+    
+    
+    
 	
 */
 
@@ -70,11 +73,12 @@ module div_by_three (
                 R1 = 1,
                 R2 = 2;
     
-    reg [1:0] state;
-    
+    reg  [1:0] state_reg;
+    reg  [1:0] state;
     assign div_o = (state == R0);     
-  
-    always @ (posedge clk or posedge reset) begin 
+    
+    /*
+    always @ (posedge clk, posedge reset) begin 
         if (reset) begin 
             state <= R0;
         end else begin
@@ -85,6 +89,23 @@ module div_by_three (
             R2:      state <= (x_i) ? R2 : R1;
             endcase
         end 
+    end 
+    */
+    always @ (posedge clk, posedge reset) begin 
+        if (reset) begin 
+            state_reg <= 0;
+        end else begin
+            state_reg <= state;
+        end 
+    end 
+    
+    always @ (*) begin 
+        case (state) 
+        default: state = state_reg;
+        R0:      state = (x_i) ? R1 : R0;
+        R1:      state = (x_i) ? R0 : R2;
+        R2:      state = (x_i) ? R2 : R1;
+        endcase
     end 
 
 endmodule
