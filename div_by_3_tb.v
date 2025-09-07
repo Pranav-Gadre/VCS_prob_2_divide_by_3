@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+`include "div_by_three.v"
 
 module div_by_3_tb();
     
@@ -47,7 +48,7 @@ module div_by_3_tb();
         par_to_ser_in(47);
     end 
     
-    property sync_resetn;
+    property same_cycle_changes;
         @(posedge clk) disable iff (reset)
         ($fell(x_i) | $rose(x_i)) |-> ($fell(div_o) | $fell(div_o));
     endproperty
